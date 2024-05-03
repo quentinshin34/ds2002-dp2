@@ -1,0 +1,41 @@
+#!/bin/bash
+
+MONGODB_URI=$MONGODB
+
+COLLECTION="test"
+
+# initialize counts
+recordsImported=0
+recordsFailed=0
+filesImported=0
+filesFailed=0
+
+# Function to import a json file
+import_file() {
+    local file=$1
+    local records=$(jq '. | length' "$file") # number of json files
+
+    # Import the file into MongoDB
+    if mongoimport --uri "$MONGODB_URI" --collection "$COLLECTION" --file "$file" --type json --jsonArray; then
+        echo "$file: Imported $records records."
+        filesImported=$((filesImported + 1))
+        recordsImported=$((recordsImported + records))
+    else # if fails
+        echo "$file: Failed to import $records records."
+        filesFailed=$((filesFailed + 1))
+        recordsFailed=$((recordsFailed + records))
+    fi
+}
+
+# Process each JSON file in the directory using function
+for json_file in data/*.json; do
+    import_file "$json_file"
+done
+
+# Print summary to a file and console
+echo "Files Imported: $filesImported" >> count.txt
+echo "Files Failed to Import: $filesFailed" >> count.txt
+echo "Records Imported: $recordsImported" >> count.txt
+echo "Records Failed to Import: $recordsFailed" >> count.txt
+
+cat count.txt

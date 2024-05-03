@@ -1,3 +1,5 @@
-Records imported: 
-Records orphaned (complete but not imported): 
-Records corrupted: 
+
+Files Imported: 50
+Files Failed to Import: 0
+Records Imported: 295
+Records Failed to Import: 0
